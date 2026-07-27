@@ -1,1 +1,79 @@
-þiíýÖ­kö¥Š	Þu¶§‘Ê&n)Þwö¥Š	Þu¶§’¦²š
+name: Aligned AP Precalculus and IB Banks QA
+
+on:
+  pull_request:
+    paths:
+      - "source-imports/aligned-banks/**"
+      - "question-bank/assets/aligned-banks/**"
+      - "question-bank/data/aligned-bank-addon.json"
+      - "question-bank/data/mappings/aligned-bank-crosswalk.json"
+      - "question-bank/js/aligned-bank-*.js"
+      - "question-bank/js/bank.js"
+      - "question-bank/index.html"
+      - "question-bank/practice.html"
+      - "question-bank/exam.html"
+      - "js/practice-integration.js"
+      - "tools/validate_aligned_banks.py"
+      - ".github/workflows/aligned-bank-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-aligned-banks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate JSON manifests
+        run: |
+          python -m json.tool question-bank/data/aligned-bank-addon.json >/dev/null
+          python -m json.tool question-bank/data/mappings/aligned-bank-crosswalk.json >/dev/null
+
+      - name: Verify source and runtime archives
+        run: |
+          set -euo pipefail
+          for file in \
+            source-imports/aligned-banks/caegu9-blackboard.zip \
+            source-imports/aligned-banks/acs10l-blackboard.zip \
+            source-imports/aligned-banks/ca9z-blackboard.zip \
+            source-imports/aligned-banks/ategu9-blackboard.zip \
+            source-imports/aligned-banks/ategu9-source-bok.zip \
+            question-bank/assets/aligned-banks/caegu9.zip \
+            question-bank/assets/aligned-banks/acs10l.zip \
+            question-bank/assets/aligned-banks/ca9z.zip \
+            question-bank/assets/aligned-banks/ategu9.zip; do
+              test -s "$file"
+              unzip -tq "$file" >/dev/null
+          done
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check question-bank/js/bank.js
+          node --check question-bank/js/aligned-bank-runtime.js
+          node --check question-bank/js/aligned-bank-ui.js
+          node --check question-bank/js/aligned-bank-audit.js
+          node --check js/practice-integration.js
+
+      - name: Validate questions, images and curriculum mappings
+        run: python tools/validate_aligned_banks.py
+
+      - name: Enforce numbered student labels
+        run: |
+          set -euo pipefail
+          grep -q "AP Precalculus Bank 5" question-bank/index.html
+          grep -q "IB Mathematics Bank 4" question-bank/index.html
+          ! grep -Eqi "Pearson|Sullivan|Blitzer|Blackboard|TestGen|DLS" question-bank/index.html question-bank/practice.html question-bank/exam.html

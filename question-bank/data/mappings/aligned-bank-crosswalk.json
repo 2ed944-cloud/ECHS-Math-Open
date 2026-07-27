@@ -1,1 +1,40 @@
-þiíýÖ­kö¥Š	Þu¶§‘Ê&n)Þwö¥Š	Þu¶§‘Êè²Ì–Hì¢
+{
+  "schemaVersion": "2.0.0",
+  "generatedAt": "2026-07-27",
+  "storageModel": "Each canonical imported question is stored once. Course mappings and numbered student bank aliases are attached without regenerating IDs.",
+  "studentLabels": {
+    "ap-precalculus": ["AP Precalculus Bank 1", "AP Precalculus Bank 2", "AP Precalculus Bank 3", "AP Precalculus Bank 4", "AP Precalculus Bank 5"],
+    "ib-math-ai": ["IB Mathematics Bank 1", "IB Mathematics Bank 2", "IB Mathematics Bank 3", "IB Mathematics Bank 4"]
+  },
+  "alignmentTotals": {
+    "importedUniqueQuestions": 15671,
+    "apPrecalculusMappings": 10584,
+    "ibMathematicsMappings": 15355
+  },
+  "apPrecalculus": {
+    "unitCounts": {"1": 5870, "2": 2159, "3": 1067, "4": 1488},
+    "units": {
+      "1": {"title": "Polynomial and Rational Functions", "topics": ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "1.10", "1.11", "1.12", "1.13", "1.14"]},
+      "2": {"title": "Exponential and Logarithmic Functions", "topics": ["2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "2.10", "2.11", "2.12", "2.13", "2.14", "2.15"]},
+      "3": {"title": "Trigonometric and Polar Functions", "topics": ["3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]},
+      "4": {"title": "Functions Involving Parameters, Vectors, and Matrices", "examAssessed": false, "topics": ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.8", "4.9", "4.10"]}
+    }
+  },
+  "ibMathematicsAI": {
+    "unitCounts": {"1": 1505, "2": 10582, "3": 2362, "4": 906, "5": 0},
+    "units": {
+      "1": {"title": "Number and Algebra", "mappedAreas": ["equations", "inequalities", "sequences", "counting principles"]},
+      "2": {"title": "Functions", "mappedAreas": ["linear", "quadratic", "polynomial", "rational", "exponential", "logarithmic", "transformations", "inverse and composite functions"]},
+      "3": {"title": "Geometry and Trigonometry", "mappedAreas": ["trigonometric functions", "triangles", "vectors", "conic and polar representations"]},
+      "4": {"title": "Statistics and Probability", "mappedAreas": ["probability", "counting", "binomial ideas", "descriptive statistics where present"]},
+      "5": {"title": "Calculus", "mappedQuestions": 0, "note": "These source packages are not used to claim IB calculus coverage."}
+    }
+  },
+  "releaseRules": [
+    "Student pages display numbered course bank names only.",
+    "Publisher and package identity remains in internal provenance and source archives.",
+    "Exact lesson routes never fall back to unrelated broader questions.",
+    "AP Precalculus Unit 4 mappings are retained as instructional enrichment and marked not exam-assessed.",
+    "Question IDs are preserved and never regenerated."
+  ]
+}
