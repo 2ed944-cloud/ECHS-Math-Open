@@ -1,0 +1,72 @@
+name: Open Edition QA
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "404.html"
+      - "offline.html"
+      - "manifest.json"
+      - "robots.txt"
+      - "sitemap.xml"
+      - "privacy.html"
+      - "accessibility.html"
+      - "sources-and-rights.html"
+      - "sw.js"
+      - "js/platform-foundation.js"
+      - "question-bank/*.html"
+      - "question-bank/official/*.html"
+      - "tools/validate_open_edition.py"
+      - ".github/workflows/open-edition-qa.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "index.html"
+      - "404.html"
+      - "offline.html"
+      - "manifest.json"
+      - "robots.txt"
+      - "sitemap.xml"
+      - "privacy.html"
+      - "accessibility.html"
+      - "sources-and-rights.html"
+      - "sw.js"
+      - "js/platform-foundation.js"
+      - "question-bank/*.html"
+      - "question-bank/official/*.html"
+      - "tools/validate_open_edition.py"
+      - ".github/workflows/open-edition-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-open-edition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate account-free navigation and links
+        run: python tools/validate_open_edition.py
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check js/platform-foundation.js
+          node --check sw.js
+
+      - name: Validate application manifest
+        run: python -m json.tool manifest.json >/dev/null
