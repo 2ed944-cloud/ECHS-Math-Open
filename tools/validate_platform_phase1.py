@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the ECHS Phase 1 platform foundation without external dependencies."""
+"""Validate the ECHS Mathematics Open platform foundation without external dependencies."""
 from __future__ import annotations
 
 import json
@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
+SITE_ROOT = "https://2ed944-cloud.github.io/ECHS-Math-Open/"
 ERRORS: list[str] = []
 WARNINGS: list[str] = []
 
@@ -58,10 +59,11 @@ def validate_required_files() -> None:
         "question-bank/js/practice.js",
         "question-bank/js/precalculus-bank-audit.js",
         "platform/PHASE_1_FOUNDATION.md",
+        "tools/validate_open_edition.py",
     ]
     for relative in required:
         if not (ROOT / relative).is_file():
-            error(f"Missing required platform file: {relative}")
+            error(f"Missing required open-platform file: {relative}")
 
 
 def validate_manifest() -> None:
@@ -69,6 +71,8 @@ def validate_manifest() -> None:
     for key in ("id", "name", "short_name", "start_url", "scope", "display", "icons"):
         if not manifest.get(key):
             error(f"manifest.json is missing {key}")
+    if manifest.get("name") != "ECHS Mathematics Open":
+        error("manifest.json must identify the open edition")
     icons = manifest.get("icons", [])
     sizes = {str(icon.get("sizes")) for icon in icons}
     if not {"192x192", "512x512"}.issubset(sizes):
@@ -80,6 +84,10 @@ def validate_manifest() -> None:
     shortcuts = manifest.get("shortcuts", [])
     if len(shortcuts) < 3:
         warning("manifest.json has fewer than three application shortcuts")
+    manifest_text = json.dumps(manifest)
+    for forbidden in ("teacher.html", "parent.html", "login.html", "student.html", "admin.html"):
+        if forbidden in manifest_text:
+            error(f"Open manifest exposes role/account route: {forbidden}")
 
 
 def validate_precalculus_bank() -> None:
@@ -137,6 +145,8 @@ def validate_html_links() -> None:
         ROOT / "question-bank/practice.html",
         ROOT / "question-bank/exam.html",
         ROOT / "question-bank/dashboard.html",
+        ROOT / "question-bank/mistakes.html",
+        ROOT / "question-bank/official/index.html",
     ]
     attribute = re.compile(r"(?:href|src)=['\"]([^'\"]+)['\"]", re.IGNORECASE)
     for page in pages:
@@ -154,10 +164,17 @@ def validate_html_links() -> None:
             clean = value.split("?", 1)[0].split("#", 1)[0]
             if not clean or "{" in clean:
                 continue
-            if clean.startswith("/ECHS-Math/"):
-                target = ROOT / clean.removeprefix("/ECHS-Math/")
+            if clean.startswith("/ECHS-Math-Open/"):
+                target = ROOT / clean.removeprefix("/ECHS-Math-Open/")
+            elif clean == "/ECHS-Math-Open/":
+                target = ROOT / "index.html"
+            elif clean.startswith("/"):
+                warning(f"Unexpected root-relative link in {page.relative_to(ROOT)}: {value}")
+                continue
             else:
                 target = (page.parent / clean).resolve()
+            if target.is_dir():
+                target = target / "index.html"
             try:
                 target.resolve().relative_to(ROOT.resolve())
             except ValueError:
@@ -171,10 +188,10 @@ def validate_discovery_files() -> None:
     robots = ROOT / "robots.txt"
     if robots.is_file():
         text = robots.read_text(encoding="utf-8")
-        if "Sitemap: https://2ed944-cloud.github.io/ECHS-Math/sitemap.xml" not in text:
-            error("robots.txt does not identify the production sitemap")
+        if f"Sitemap: {SITE_ROOT}sitemap.xml" not in text:
+            error("robots.txt does not identify the open-edition sitemap")
         if "Disallow: /question-bank/official/data/" not in text:
-            warning("robots.txt does not explicitly exclude Official AP data payloads")
+            warning("robots.txt does not explicitly exclude AP data payloads")
 
     sitemap = ROOT / "sitemap.xml"
     if sitemap.is_file():
@@ -185,8 +202,8 @@ def validate_discovery_files() -> None:
             if len(locations) < 10:
                 warning(f"sitemap.xml contains only {len(locations)} public URLs")
             for location in locations:
-                if not location.startswith("https://2ed944-cloud.github.io/ECHS-Math/"):
-                    error(f"Unexpected sitemap origin: {location}")
+                if not location.startswith(SITE_ROOT):
+                    error(f"Unexpected open sitemap origin: {location}")
         except ET.ParseError as exc:
             error(f"Invalid sitemap.xml: {exc}")
 
@@ -198,7 +215,7 @@ def main() -> int:
     validate_html_links()
     validate_discovery_files()
 
-    print("ECHS Phase 1 platform validation")
+    print("ECHS Open platform foundation validation")
     print(f"Warnings: {len(WARNINGS)}")
     for item in WARNINGS:
         print(f"  WARNING: {item}")

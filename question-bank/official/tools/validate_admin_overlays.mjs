@@ -24,6 +24,13 @@ function walkStrings(value, field = "") {
   return [];
 }
 
+function normalizeExpression(expression) {
+  // Historical admin overlays use the two-character sequence "\\n" as
+  // formatting whitespace inside \[...\] blocks. It is not a KaTeX command.
+  // Normalize only for parsing; canonical overlay content remains untouched.
+  return String(expression).replace(/\\n/g, "\n").trim();
+}
+
 function delimitedExpressions(text) {
   const expressions = [];
   const errors = [];
@@ -42,7 +49,7 @@ function delimitedExpressions(text) {
       errors.push(`Unmatched ${token.open} delimiter at character ${token.index}`);
       break;
     }
-    expressions.push({ expression: text.slice(token.index + token.open.length, end), displayMode: token.display });
+    expressions.push({ expression: normalizeExpression(text.slice(token.index + token.open.length, end)), displayMode: token.display });
     cursor = end + token.close.length;
   }
   for (const close of ["\\)", "\\]"]) {

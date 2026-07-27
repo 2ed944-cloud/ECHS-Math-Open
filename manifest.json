@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "ECHS Mathematics Learning Platform",
-  "short_name": "ECHS Math",
-  "description": "Free interactive mathematics lessons, adaptive practice, mastery, spaced review, test generation and separately verified Official AP resources.",
+  "name": "ECHS Mathematics Open",
+  "short_name": "ECHS Math Open",
+  "description": "Open interactive mathematics lessons, practice, review, tests and local progress with no account required.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "./index.html?source=pwa",
@@ -38,74 +38,51 @@
     {
       "name": "Courses and Lessons",
       "short_name": "Lessons",
-      "description": "Open the ECHS course portal",
+      "description": "Browse all open ECHS mathematics courses and lessons",
       "url": "./index.html#courses",
-      "icons": [
-        {
-          "src": "assets/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "icons": [{"src": "assets/icon-192.png", "sizes": "192x192"}]
     },
     {
-      "name": "Student Dashboard",
-      "short_name": "Student",
-      "description": "Open the personal learning dashboard",
-      "url": "./question-bank/dashboard.html",
-      "icons": [
-        {
-          "src": "assets/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "name": "Practice Hub",
+      "short_name": "Hub",
+      "description": "Open practice, tests, review and local progress",
+      "url": "./question-bank/index.html",
+      "icons": [{"src": "assets/icon-192.png", "sizes": "192x192"}]
     },
     {
       "name": "Adaptive Practice",
-      "short_name": "Adaptive",
+      "short_name": "Practice",
       "description": "Start an adaptive mathematics practice set",
       "url": "./question-bank/practice.html?mode=adaptive",
-      "icons": [
-        {
-          "src": "assets/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "icons": [{"src": "assets/icon-192.png", "sizes": "192x192"}]
     },
     {
       "name": "Review Centre",
       "short_name": "Review",
       "description": "Open the Mistake Bank and spaced review",
       "url": "./question-bank/mistakes.html",
-      "icons": [
-        {
-          "src": "assets/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "icons": [{"src": "assets/icon-192.png", "sizes": "192x192"}]
     },
     {
       "name": "Test Generator",
       "short_name": "Tests",
       "description": "Create a focused mathematics test",
       "url": "./question-bank/exam.html",
-      "icons": [
-        {
-          "src": "assets/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "icons": [{"src": "assets/icon-192.png", "sizes": "192x192"}]
     },
     {
-      "name": "Official AP Centre",
-      "short_name": "Official AP",
-      "description": "Open the separately verified Official AP archive",
+      "name": "Learning Progress",
+      "short_name": "Progress",
+      "description": "View locally stored mastery, review and achievements",
+      "url": "./question-bank/dashboard.html",
+      "icons": [{"src": "assets/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "AP Practice Banks",
+      "short_name": "AP Banks",
+      "description": "Open the separately verified AP practice environment",
       "url": "./question-bank/official/index.html",
-      "icons": [
-        {
-          "src": "assets/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "icons": [{"src": "assets/icon-192.png", "sizes": "192x192"}]
     }
   ]
 }

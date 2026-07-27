@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the ECHS Phase 2 local-first learning system."""
+"""Validate the account-free ECHS Phase 2 local-first learning system."""
 from __future__ import annotations
 import json
 import re
@@ -13,31 +13,26 @@ ERRORS=[]
 def fail(message): ERRORS.append(message)
 
 REQUIRED=[
-"question-bank/index.html","question-bank/practice.html","question-bank/exam.html","question-bank/dashboard.html",
-"question-bank/mistakes.html","question-bank/teacher.html","question-bank/parent.html",
-"question-bank/css/learning-system.css","question-bank/js/learning-system.js","question-bank/js/sync-adapter.js",
-"question-bank/js/learning-home.js","question-bank/js/practice.js","question-bank/js/exam.js","question-bank/js/dashboard.js",
-"question-bank/js/mistakes.js","question-bank/js/teacher.js","question-bank/js/parent.js",
-"js/lesson-learning-bridge.js","tools/test_learning_system.mjs"
+ "question-bank/index.html","question-bank/practice.html","question-bank/exam.html","question-bank/dashboard.html",
+ "question-bank/mistakes.html","question-bank/teacher.html","question-bank/parent.html",
+ "question-bank/css/learning-system.css","question-bank/js/learning-system.js","question-bank/js/sync-adapter.js",
+ "question-bank/js/learning-home.js","question-bank/js/practice.js","question-bank/js/exam.js","question-bank/js/dashboard.js",
+ "question-bank/js/mistakes.js","js/lesson-learning-bridge.js","tools/test_learning_system.mjs"
 ]
 PAGE_IDS={
-"question-bank/dashboard.html":["dailyPlan","masteryRows","achievementGrid","profileDialog"],
-"question-bank/mistakes.html":["reviewList","viewFilter","startReview"],
-"question-bank/teacher.html":["classList","classOverview","assignmentList","classDialog","assignmentDialog"],
-"question-bank/parent.html":["parentMetrics","strengthList","weakList","familyPlan"],
-"question-bank/practice.html":["mode","group","bundle","start","shell"],
-"question-bank/exam.html":["group","bundle","start","exam"]
+ "question-bank/dashboard.html":["dailyPlan","masteryRows","achievementGrid","profileDialog"],
+ "question-bank/mistakes.html":["reviewList","viewFilter","startReview"],
+ "question-bank/practice.html":["mode","group","bundle","start","shell"],
+ "question-bank/exam.html":["group","bundle","start","exam"]
 }
 SCRIPT_MARKERS={
-"question-bank/js/learning-system.js":["recordAttempt","selectAdaptive","dailyPlan","exportStudentReport","migrateLegacyAttempts"],
-"question-bank/js/practice.js":["modeCopy","persistContinue","selectAdaptive","Mistake Bank"],
-"question-bank/js/teacher.js":["assignmentLink","importReports","exportWorkspace"],
-"question-bank/js/parent.js":["planItems","exportStudentReport"],
+ "question-bank/js/learning-system.js":["recordAttempt","selectAdaptive","dailyPlan","exportStudentReport","migrateLegacyAttempts"],
+ "question-bank/js/practice.js":["modeCopy","persistContinue","selectAdaptive","Mistake Bank"],
 }
 
 def validate_files():
     for relative in REQUIRED:
-        if not (ROOT/relative).is_file(): fail(f"Missing required Phase 2 file: {relative}")
+        if not (ROOT/relative).is_file(): fail(f"Missing required open Phase 2 file: {relative}")
 
 def validate_ids():
     for relative,ids in PAGE_IDS.items():
@@ -48,6 +43,14 @@ def validate_ids():
             if not re.search(rf'\bid=["\']{re.escape(value)}["\']',text): fail(f"{relative} is missing id={value}")
         if "learning-system.js" not in text: fail(f"{relative} does not load learning-system.js")
         if "learning-system.css" not in text: fail(f"{relative} does not load learning-system.css")
+
+def validate_retired_role_routes():
+    for relative in ("question-bank/teacher.html","question-bank/parent.html"):
+        text=(ROOT/relative).read_text(encoding="utf-8")
+        for marker in ('content="0;url=dashboard.html"','location.replace("dashboard.html")','noindex,nofollow'):
+            if marker not in text: fail(f"{relative} is not a safe retired-route redirect: {marker}")
+        if "learning-system.js" in text or "learning-system.css" in text:
+            fail(f"{relative} must not load a role workspace in the open edition")
 
 def validate_markers():
     for relative,markers in SCRIPT_MARKERS.items():
@@ -60,25 +63,31 @@ def validate_markers():
 def validate_manifest_and_worker():
     manifest=json.loads((ROOT/"manifest.json").read_text(encoding="utf-8"))
     shortcut_urls={row.get("url") for row in manifest.get("shortcuts",[])}
-    for url in ("./question-bank/dashboard.html","./question-bank/practice.html?mode=adaptive","./question-bank/mistakes.html"):
-        if url not in shortcut_urls: fail(f"manifest.json is missing Phase 2 shortcut {url}")
+    for url in ("./question-bank/dashboard.html","./question-bank/practice.html?mode=adaptive","./question-bank/mistakes.html","./question-bank/exam.html"):
+        if url not in shortcut_urls: fail(f"manifest.json is missing open Phase 2 shortcut {url}")
+    manifest_text=json.dumps(manifest)
+    for forbidden in ("teacher.html","parent.html","login.html","student.html","admin.html"):
+        if forbidden in manifest_text: fail(f"manifest.json contains retired role/account route {forbidden}")
     worker=(ROOT/"sw.js").read_text(encoding="utf-8")
-    for relative in ("question-bank/dashboard.html","question-bank/mistakes.html","question-bank/teacher.html","question-bank/parent.html","question-bank/js/learning-system.js"):
+    for relative in ("question-bank/dashboard.html","question-bank/mistakes.html","question-bank/practice.html","question-bank/exam.html","question-bank/js/learning-system.js"):
         if f'"./{relative}"' not in worker: fail(f"sw.js does not pre-cache {relative}")
+    for forbidden in ("question-bank/teacher.html","question-bank/parent.html","question-bank/js/teacher.js","question-bank/js/parent.js"):
+        if forbidden in worker: fail(f"sw.js must not cache retired role asset {forbidden}")
 
 def validate_source_boundary():
     official=ROOT/"question-bank/official"
-    if not official.is_dir(): fail("Official AP directory is missing")
+    if not official.is_dir(): fail("AP practice directory is missing")
     for page in ("question-bank/practice.html","question-bank/exam.html","question-bank/index.html"):
         text=(ROOT/page).read_text(encoding="utf-8")
-        if "Official AP" not in text: fail(f"{page} does not preserve the Official AP boundary")
+        if "AP Banks" not in text and "AP Practice Banks" not in text:
+            fail(f"{page} does not preserve the separate AP practice boundary")
 
 def check_javascript():
     scripts=[
       "question-bank/js/learning-system.js","question-bank/js/sync-adapter.js","question-bank/js/bank.js",
       "question-bank/js/learning-home.js","question-bank/js/practice.js","question-bank/js/exam.js",
-      "question-bank/js/dashboard.js","question-bank/js/mistakes.js","question-bank/js/teacher.js",
-      "question-bank/js/parent.js","js/platform-foundation.js","js/lesson-learning-bridge.js","sw.js"
+      "question-bank/js/dashboard.js","question-bank/js/mistakes.js","js/platform-foundation.js",
+      "js/lesson-learning-bridge.js","sw.js"
     ]
     for relative in scripts:
         result=subprocess.run(["node","--check",str(ROOT/relative)],capture_output=True,text=True)
@@ -89,8 +98,8 @@ def run_engine_test():
     if result.returncode: fail(f"Learning engine smoke test failed: {result.stdout}\n{result.stderr}")
 
 def main():
-    validate_files();validate_ids();validate_markers();validate_manifest_and_worker();validate_source_boundary();check_javascript();run_engine_test()
-    print("ECHS Phase 2 learning-system validation")
+    validate_files();validate_ids();validate_retired_role_routes();validate_markers();validate_manifest_and_worker();validate_source_boundary();check_javascript();run_engine_test()
+    print("ECHS Open Phase 2 learning-system validation")
     print(f"Errors: {len(ERRORS)}")
     for item in ERRORS: print(f"  ERROR: {item}")
     if ERRORS:return 1

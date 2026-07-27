@@ -1,37 +1,49 @@
-# ECHS Mathematics Portal
+# ECHS Mathematics Open
 
-This repository contains the ECHS lesson portal and the canonical educational
-question bank.
+This repository publishes the fully open, account-free edition of the ECHS Mathematics platform:
 
-## Strict audited question boundary
+- interactive course lessons
+- course-aligned practice banks
+- adaptive practice and mistake recovery
+- timed tests
+- locally stored progress, mastery and achievements
+- a separately audited AP practice archive
 
-- Canonical records preserved: **1,217** (**876 MCQ**, **341 FRQ**).
-- Public student-ready records: **52** (**42 MCQ**, **10 FRQ**).
-- Teacher/archive-restricted records: **1,165**.
-- Canonical IDs, source references, provenance, stable routes, and redacted
-  archive metadata are preserved.
+No student, teacher, family or administrator account is created. There is no sign-in, registration or institutional role system in this edition. Bookmarks, lesson completion, attempts, reviews and progress remain in the visitor's browser unless the visitor explicitly exports a progress file.
 
-Only independently verified, exactly lesson-mapped, ECHS-owned records whose
-source metadata permits public publication enter practice, exams, smart
-practice, or dashboard calculations. Restricted records remain indexed in the
-archive but expose no prompt, choices, answer, solution, rubric, or media in the
-public student data.
+Production open site:
+
+`https://2ed944-cloud.github.io/ECHS-Math-Open/`
+
+## Navigation contract
+
+The public navigation is intentionally limited to:
+
+1. Lessons
+2. Practice Hub
+3. Practice
+4. Tests
+5. Review
+6. Progress
+7. AP Banks
+
+Legacy `teacher.html` and `parent.html` routes are retained only as safe redirects to local Progress so that old bookmarks do not produce broken pages.
+
+## Question publication boundary
+
+Course practice and the audited AP archive remain separate environments. Canonical IDs, source references, provenance, audit history and publication restrictions are preserved internally. Restricted or review-required AP records remain redacted and cannot enter open practice, assessment or progress calculations.
 
 ## Validation
 
 ```bash
-npm ci --prefix question-bank/official/tools
-npm run validate:katex --prefix question-bank/official/tools
-npm run validate:browser --prefix question-bank/official/tools
-python question-bank/official/tools/generate_release_checksums.py
-python question-bank/official/tools/validate_release.py
+python tools/validate_open_edition.py
+node --check js/platform-foundation.js
+node --check sw.js
+python -m json.tool manifest.json > /dev/null
 ```
 
-The audit reports are in `question-bank/official/reports/`.
+The `Open Edition QA` workflow runs these checks on relevant pull requests and changes to `main`.
 
 ## Deployment note
 
-GitHub Pages is a public static host. The student runtime is strictly filtered
-and the public archive is redacted, but files committed to this repository are
-not protected by an authenticated school-only boundary. A genuinely private
-teacher/admin deployment requires an authenticated host.
+GitHub Pages is a public static host. Do not add school accounts, learner records, class rosters, private reports, authentication secrets or institutional API configuration to this repository.

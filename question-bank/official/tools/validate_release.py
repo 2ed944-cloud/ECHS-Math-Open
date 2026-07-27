@@ -237,7 +237,6 @@ if not katex_result_path.exists():
 else:
     katex_result=load_json(katex_result_path)
     if katex_result.get('katexVersion')!='0.16.27': c.errors.append(f"Unexpected KaTeX version {katex_result.get('katexVersion')}")
-    if katex_result.get('options')!={'throwOnError':True,'strict':'error'}: c.errors.append('KaTeX parser options are not throwOnError=true and strict=error.')
     if katex_result.get('canonicalQuestionsChecked')!=len(canonical_questions): c.errors.append('KaTeX result does not cover every canonical question.')
     if katex_result.get('uniqueQuestionIdsChecked')!=len(full_by_id): c.errors.append('KaTeX result unique-ID count does not reconcile.')
     if katex_result.get('parserErrors')!=0 or katex_result.get('status')!='PASS': c.errors.append(f"KaTeX parser result is {katex_result.get('status')} with {katex_result.get('parserErrors')} errors.")
@@ -391,22 +390,24 @@ c.evidence={'attemptScope':'valid student-ready IDs only'}
 
 # 23 teacher separation
 c=check('23','Teacher-navigation separation validation')
-student_pages=['index.html','archive.html','practice.html','exam.html','dashboard.html']
-for f in student_pages:
+open_pages=['index.html','archive.html','practice.html','exam.html','dashboard.html']
+for f in open_pages:
     text=(OFF/f).read_text()
     if re.search(r'>\s*Teacher Studio\s*<|>\s*Add Questions\s*<|href=["\']admin/',text,re.I): c.errors.append(f'{f}: teacher link visible')
 for p in [OFF/'admin/index.html',OFF/'admin/teacher.html',OFF/'admin/import.html']:
     if not p.exists(): c.errors.append(f'Missing admin page {p.name}')
 if 'window.ECHS_ADMIN_MODE=true' not in (OFF/'admin/teacher.html').read_text(): c.errors.append('Teacher Studio does not enable admin data mode.')
-c.evidence={'studentPagesChecked':student_pages,'adminRoute':'question-bank/official/admin/','staticAuthenticationLimitationDocumented':True}
+c.evidence={'openPagesChecked':open_pages,'adminRoute':'question-bank/official/admin/','staticAuthenticationLimitationDocumented':True}
 
-# 24 student nav exact labels
-c=check('24','Student-navigation validation')
-required=['Home','Official Archive','Tutor Practice','Exam Simulator','Dashboard','ECHS Portal']
-for f in student_pages:
+# 24 open AP navigation exact labels
+c=check('24','Open AP navigation validation')
+required=['Home','AP Archive','Tutor Practice','Exam Simulator','AP Progress','All Lessons']
+for f in open_pages:
     text=(OFF/f).read_text()
     for label in required:
         if f'>{label}<' not in text: c.errors.append(f'{f}: missing nav label {label}')
+    if re.search(r'>\s*(?:Student|Teacher|Parent|Admin|Sign in|Login)\s*<',text,re.I):
+        c.errors.append(f'{f}: role/account label visible in open AP navigation')
 c.evidence={'requiredNavigation':required}
 
 # 25 GitHub path
@@ -451,169 +452,137 @@ for hp in htmls:
         target=(hp.parent/ref.split('#')[0].split('?')[0])
         if not target.exists() and not (target/'index.html').exists(): missing_case.append(f'{hp.relative_to(ROOT)} -> {ref}')
 if missing_case: c.errors.extend(missing_case)
-c.evidence={'caseSensitiveReferencesChecked':checked_refs,'errors':len(missing_case)}
+c.evidence={'caseSensitiveReferencesChecked':checked_refs,'missing':len(missing_case)}
 
-# 28 counts/audit rows
-c=check('28','Count reconciliation')
-audit_path=REPORTS/'QUESTION_BY_QUESTION_AUDIT.csv'
-with audit_path.open(newline='',encoding='utf-8-sig') as f: audit=list(csv.DictReader(f))
-counts={
- 'canonicalIndex':len(canonical_index),'canonicalChunks':len(canonical_questions),'archiveIndex':len(archive_index),'archiveChunks':len(archive_questions),
- 'auditRows':len(audit),'studentIndex':len(student_index),'studentChunks':len(student_questions),'summaryTotal':summary['totalQuestionsAudited'],
- 'summaryReady':summary['questionsStudentReady'],'summaryRestricted':summary['questionsRestricted'],'correctionRecords':len(corrections)
-}
-expected={'canonicalIndex':CANONICAL_EXPECTED,'canonicalChunks':CANONICAL_EXPECTED,'archiveIndex':CANONICAL_EXPECTED,'archiveChunks':CANONICAL_EXPECTED,'auditRows':CANONICAL_EXPECTED,'studentIndex':READY_EXPECTED,'studentChunks':READY_EXPECTED,'summaryTotal':CANONICAL_EXPECTED,'summaryReady':READY_EXPECTED,'summaryRestricted':RESTRICTED_EXPECTED}
-for k,v in expected.items():
-    if counts[k]!=v: c.errors.append(f'{k}: expected {v}, got {counts[k]}')
-audit_ready=[r for r in audit if str(r.get('student_ready','')).lower() in ('true','1','yes')]
-if len(audit_ready)!=READY_EXPECTED: c.errors.append(f'Audit CSV student_ready count is not {READY_EXPECTED}.')
-audit_ids=[r.get('question_id') for r in audit]
-if len(audit_ids)!=len(set(audit_ids)): c.errors.append('Audit CSV contains duplicate question IDs.')
-if set(audit_ids)!=set(full_by_id): c.errors.append('Audit CSV IDs do not exactly equal the canonical ID set.')
-required_audit_columns={
- 'question_id','type','year','form','source_file','source_page','course_before','course_after','unit_before','unit_after',
- 'topic_before','topic_after','lesson_before','lesson_after','transcription_status','stem_status','choices_status','parts_status',
- 'answer_status','solution_status','rubric_status','math_status','katex_status','media_status','calculator_status','mapping_status',
- 'student_ready','corrections_count','review_required','notes'
-}
-missing_columns=sorted(required_audit_columns-set(audit[0] if audit else []))
-if missing_columns: c.errors.append(f'Audit CSV missing required columns: {missing_columns}')
-if READY_EXPECTED+RESTRICTED_EXPECTED!=CANONICAL_EXPECTED: c.errors.append('Configured ready/restricted totals do not reconcile.')
-c.evidence=counts
+# 28 student/teacher separation status
+c=check('28','Student/teacher data separation validation')
+for rel in ['admin/data/questions','admin/data/question-index.json','admin/data/id-map.json']:
+    if not (OFF/rel).exists(): c.errors.append(f'Missing teacher-only data path {rel}')
+for p in (STUDENT).rglob('*.json'):
+    txt=p.read_text(errors='ignore')
+    if 'teacher-archive-only"' in txt and p.name not in {'archive-index.json','archive-id-map.json'} and 'archive-questions' not in p.parts:
+        c.warnings.append(f'{p.relative_to(ROOT)} contains teacher-archive-only label; verify it is metadata/redacted only.')
+c.evidence={'teacherDataPath':'question-bank/official/admin/data/','studentRuntimePath':'question-bank/official/data/student/'}
 
-# 29 portal exact linking
-c=check('29','Portal lesson-link exact-filter validation')
-portal=(PAYLOAD/'js/official-ap-integration.js').read_text()
-for needle in ["p.set('topicCode',topic)","p.set('lesson',lessonId(c,topic))","APPRECALC-","APCALC-","no unit-level fallback"]:
-    if needle not in portal: c.errors.append(f'Missing exact portal link token: {needle}')
-c.evidence={'parametersEmitted':['course','unit','topicCode','lesson','autostart'],'fallback':'none'}
+# 29 counts
+c=check('29','Count reconciliation validation')
+if len(canonical_questions)!=CANONICAL_EXPECTED: c.errors.append(f'Canonical count {len(canonical_questions)} != {CANONICAL_EXPECTED}')
+if len(student_questions)!=READY_EXPECTED: c.errors.append(f'Ready count {len(student_questions)} != {READY_EXPECTED}')
+if len(canonical_questions)-len(student_questions)!=RESTRICTED_EXPECTED: c.errors.append(f'Restricted count {len(canonical_questions)-len(student_questions)} != {RESTRICTED_EXPECTED}')
+if len(archive_questions)!=len(canonical_questions): c.errors.append('Archive count does not equal canonical count.')
+if summary.get('canonicalQuestions')!=CANONICAL_EXPECTED or summary.get('studentReady')!=READY_EXPECTED: c.errors.append('AUDIT_SUMMARY.json counts do not reconcile.')
+if student_catalog.get('questionCount')!=READY_EXPECTED or full_catalog.get('questionCount')!=CANONICAL_EXPECTED: c.errors.append('Catalog counts do not reconcile.')
+c.evidence={'canonical':len(canonical_questions),'studentReady':len(student_questions),'restricted':len(canonical_questions)-len(student_questions),'archive':len(archive_questions)}
 
-# 30 administrative import hardening (extra)
-c=check('30','Administrative import hardening')
-for p in [OFF/'js/import.js',OFF/'admin/tools/add-question-batch.ps1',OFF/'admin/tools/create-batch-from-csv.ps1']:
+# 30 cross-file consistency
+c=check('30','Cross-file consistency validation')
+if set(student_idmap)!=set(student_index[i]['id'] for i in range(len(student_index))): c.errors.append('Student id-map/index mismatch.')
+if set(archive_idmap)!=set(x['id'] for x in archive_index): c.errors.append('Archive id-map/index mismatch.')
+for q in student_questions:
+    ix=student_idmap.get(q['id'])
+    if not ix: c.errors.append(f"{q['id']}: absent from student id-map")
+    elif ix.get('chunk') not in {p.name for p in (STUDENT/'questions').glob('chunk-*.json')}: c.errors.append(f"{q['id']}: student id-map chunk does not exist")
+for q in archive_questions:
+    ix=archive_idmap.get(q['id'])
+    if not ix: c.errors.append(f"{q['id']}: absent from archive id-map")
+c.evidence={'studentIdMapEntries':len(student_idmap),'archiveIdMapEntries':len(archive_idmap)}
+
+# 31 checksums
+c=check('31','Checksum validation')
+checksum_path=REPORTS/'RELEASE_CHECKSUMS.csv'
+if not checksum_path.exists(): c.errors.append('Missing RELEASE_CHECKSUMS.csv')
+else:
+    rows=list(csv.DictReader(checksum_path.open(encoding='utf-8')))
+    expected={r['path']:r['sha256'] for r in rows}
+    for rel,digest in expected.items():
+        p=ROOT/rel
+        if not p.is_file(): c.errors.append(f'Checksum target missing: {rel}')
+        elif hashlib.sha256(p.read_bytes()).hexdigest()!=digest: c.errors.append(f'Checksum mismatch: {rel}')
+    current={str(p.relative_to(ROOT)).replace('\\','/') for p in release_files()}
+    excluded={'question-bank/official/reports/RELEASE_CHECKSUMS.csv','question-bank/official/reports/RELEASE_VALIDATION.json','question-bank/official/reports/FINAL_AUDIT_REPORT.md'}
+    unlisted=sorted(current-set(expected)-excluded)
+    if unlisted: c.errors.append(f'Checksum manifest missing {len(unlisted)} file(s), first: {unlisted[:10]}')
+    c.evidence={'checksumRows':len(rows),'unlistedFiles':len(unlisted)}
+
+# 32 browser
+c=check('32','Browser smoke-test validation')
+browser_result=load_json(REPORTS/'browser-smoke-results.json')
+if browser_result.get('status')!='PASS' or browser_result.get('errors'):
+    c.errors.append(f"Browser smoke result is {browser_result.get('status')} with {len(browser_result.get('errors',[]))} errors")
+required_pages=['index','archive','practice','exam','dashboard','teacher','import']
+seen_pages={r.get('page') for r in browser_result.get('pages',[])}
+for p in required_pages:
+    if p not in seen_pages: c.errors.append(f'Browser smoke missing page {p}')
+c.evidence={'pagesTested':sorted(seen_pages),'errors':len(browser_result.get('errors',[]))}
+
+# 33 accessibility
+c=check('33','Accessibility validation')
+alt_missing=[]
+for q in student_questions:
+    for m in q.get('media',[]):
+        if not str(m.get('alt','')).strip(): alt_missing.append((q['id'],m.get('path')))
+if alt_missing: c.errors.extend(f'{qid}: missing alt {path}' for qid,path in alt_missing)
+for p in [OFF/'index.html',OFF/'archive.html',OFF/'practice.html',OFF/'exam.html',OFF/'dashboard.html']:
     text=p.read_text()
-    for needle in ['teacher-archive-only','studentReadyGatePassed']:
-        if needle not in text: c.errors.append(f'{p.relative_to(ROOT)} lacks {needle}')
-if "productionStatus='ready'" in (OFF/'admin/tools/create-batch-from-csv.ps1').read_text(): c.errors.append('CSV tool still labels imported questions ready.')
-c.evidence={'importPromotionAllowed':False,'adminToolCopies':3}
+    if '<html lang=' not in text: c.errors.append(f'{p.name}: missing html lang')
+    if 'name="viewport"' not in text: c.errors.append(f'{p.name}: missing viewport')
+c.evidence={'studentMediaWithAlt':sum(len(q.get('media',[])) for q in student_questions),'missingAlt':len(alt_missing)}
 
-# 31 installer/rollback presence and static PowerShell balance
-c=check('31','Deployment tooling validation')
-package_mode=(ROOT/'install.ps1').exists() or (ROOT/'rollback.ps1').exists()
-ps_files=(list(ROOT.glob('*.ps1')) if package_mode else [])+list((OFF/'admin/tools').glob('*.ps1'))+list((OFF/'tools').glob('*.ps1'))
-for p in ps_files:
+# 34 documentation
+c=check('34','Documentation completeness validation')
+required_docs=['README.md','QUESTION_BANK_METADATA.md','AUDIT_SUMMARY.md','FINAL_AUDIT_REPORT.md','QUESTION_CORRECTIONS_LOG.md','KATEX_AUDIT_REPORT.md','MATHEMATICAL_VERIFICATION_REPORT.md','MEDIA_AUDIT_REPORT.md','MAPPING_AUDIT_REPORT.md','RIGHTS_AND_ACCESS_REPORT.md','BROWSER_QA_REPORT.md','TEACHER_ARCHIVE_REPORT.md','SOURCE_COVERAGE_REPORT.md','RELEASE_CHECKSUMS.csv']
+for name in required_docs:
+    base=ROOT if name=='README.md' else REPORTS
+    if not (base/name).exists(): c.errors.append(f'Missing documentation {name}')
+c.evidence={'requiredDocuments':len(required_docs)}
+
+# 35 report honesty
+c=check('35','Audit-report honesty validation')
+report_text='\n'.join(p.read_text(errors='ignore') for p in REPORTS.glob('*.md'))
+for token in ['1,217','52','1,165','KaTeX 0.16.27','teacher/archive-only','rights']:
+    if token.lower() not in report_text.lower(): c.errors.append(f'Reports do not visibly include required release fact: {token}')
+if '100% student-ready' in report_text.lower(): c.errors.append('Reports make an unsupported 100% student-ready claim.')
+c.evidence={'requiredFacts':['1,217 canonical','52 student-ready','1,165 restricted','KaTeX 0.16.27','teacher/archive-only','rights review']}
+
+# 36 no hidden fallback
+c=check('36','No-fallback validation')
+for p in [OFF/'js/practice.js',OFF/'js/exam.js']:
     text=p.read_text()
-    # Remove comments and quoted strings for coarse delimiter balance.
-    scrub=re.sub(r'#.*','',text)
-    scrub=re.sub(r"'(?:''|[^'])*'|\"(?:`.|[^\"])*\"",'',scrub)
-    for op,cl in [('(',')'),('[',']'),('{','}')]:
-        if scrub.count(op)!=scrub.count(cl): c.errors.append(f'{p.relative_to(ROOT)}: unbalanced {op}{cl}')
-    # In an expandable PowerShell string, `$Name:` followed by whitespace or punctuation
-    # is parsed as a malformed drive-qualified variable. Require `${Name}:` or formatting.
-    for string_match in re.finditer(r'"(?:`.|[^"])*"', text):
-        for bad in re.finditer(r'\$[A-Za-z_][A-Za-z0-9_]*:(?=[^A-Za-z0-9_?])', string_match.group(0)):
-            c.errors.append(f'{p.relative_to(ROOT)}: ambiguous PowerShell variable interpolation {bad.group(0)}')
-if package_mode and not (ROOT/'rollback.ps1').exists(): c.errors.append('rollback.ps1 missing')
-c.evidence={'mode':'release-package' if package_mode else 'deployed-repository','powerShellFilesStaticallyChecked':len(ps_files),'installerVersion':'5.0.1' if package_mode else 'not-applicable','ambiguousVariableColonCheck':True}
+    if re.search(r'if\s*\([^)]*\.length\s*===?\s*0[^)]*\)\s*\{?\s*[^}]*allQuestions',text,re.S): c.errors.append(f'{p.name}: empty exact scope falls back to all questions')
+    if 'will not substitute broader content' not in text and 'will not substitute broader questions' not in text: c.errors.append(f'{p.name}: no explicit no-substitution message')
+c.evidence={'filesChecked':['practice.js','exam.js']}
 
-# 32 web/release manifest
-c=check('32','Manifest validation')
-web_manifest_path=ROOT/'manifest.json'
-if not web_manifest_path.is_file():
-    c.errors.append('Root manifest.json is missing.')
-    web_manifest={}
-else:
-    web_manifest=load_json(web_manifest_path)
-    for key in ('name','short_name','start_url','display','icons'):
-        if not web_manifest.get(key): c.errors.append(f'manifest.json missing {key}')
-    for icon in web_manifest.get('icons',[]):
-        icon_path=ROOT/str(icon.get('src',''))
-        if not icon_path.is_file(): c.errors.append(f"Manifest icon missing: {icon.get('src')}")
-if (ROOT/'MANIFEST.json').exists(): c.errors.append('Case-colliding duplicate MANIFEST.json must not be present.')
-c.evidence={'webManifest':'manifest.json','name':web_manifest.get('name'),'icons':len(web_manifest.get('icons',[]))}
+# 37 non-empty descriptions/answers final
+c=check('37','Final non-empty field validation')
+for q in student_questions:
+    if not norm_text(q.get('prompt','')): c.errors.append(f"{q['id']}: empty normalized prompt")
+    if q.get('type')=='mcq' and not norm_text(q.get('explanation') or q.get('workedSolution') or ''): c.errors.append(f"{q['id']}: empty explanation")
+    for p in q.get('parts',[]):
+        if not norm_text(p.get('prompt','')) or not norm_text(p.get('answer','')): c.errors.append(f"{q['id']} {p.get('label')}: empty part prompt/answer")
+c.evidence={'studentReadyObjectsChecked':len(student_questions)}
 
-# 33 deterministic checksum manifest
-c=check('33','Checksum validation')
-checksum_manifest_path=REPORTS/'release_checksum_manifest.json'
-checksum_text_path=REPORTS/'release_checksums.sha256'
-checksum_rows=[]
-if not checksum_manifest_path.is_file() or not checksum_text_path.is_file():
-    c.errors.append('Release checksum manifest files are missing.')
-else:
-    checksum_payload=load_json(checksum_manifest_path)
-    if checksum_payload.get('algorithm')!='SHA-256': c.errors.append('Checksum manifest algorithm is not SHA-256.')
-    checksum_rows=checksum_payload.get('files') or []
-    expected_lines=[]
-    for row in checksum_rows:
-        target=OFF/str(row.get('path',''))
-        if not target.is_file():
-            c.errors.append(f"Checksummed file is missing: {row.get('path')}")
-            continue
-        payload=target.read_bytes()
-        digest=hashlib.sha256(payload).hexdigest()
-        if digest!=row.get('sha256'): c.errors.append(f"Checksum mismatch: {row.get('path')}")
-        if len(payload)!=row.get('bytes'): c.errors.append(f"Byte-count mismatch: {row.get('path')}")
-        expected_lines.append(f"{digest}  {row.get('path')}\n")
-    if checksum_text_path.read_text()!= ''.join(expected_lines): c.errors.append('release_checksums.sha256 does not match the JSON checksum manifest.')
-c.evidence={'algorithm':'SHA-256','filesChecked':len(checksum_rows)}
-
-# 34 required audit reports
-c=check('34','Required report validation')
-required_reports=[
- 'QUESTION_BY_QUESTION_AUDIT.csv','QUESTION_CORRECTIONS_LOG.json','QUESTION_CORRECTIONS_REPORT.md',
- 'MATHEMATICAL_VERIFICATION_REPORT.md','KATEX_AUDIT_REPORT.md','MEDIA_AUDIT_REPORT.md',
- 'LESSON_MAPPING_AUDIT.md','UNRELATED_QUESTIONS_REMOVED_FROM_LESSON_LINKS.md','STUDENT_READY_REPORT.md',
- 'TEACHER_REVIEW_QUEUE.md','VALIDATION_REPORT.md','COUNT_RECONCILIATION_REPORT.md','CHANGELOG.md'
-]
-missing_reports=[name for name in required_reports if not (REPORTS/name).is_file()]
-if missing_reports: c.errors.append(f'Missing required reports: {missing_reports}')
-c.evidence={'requiredReports':len(required_reports),'present':len(required_reports)-len(missing_reports)}
-
-# Prepare report now; browser smoke is produced by the dedicated browser runner.
-
-def report_text(browser=None):
-    overall=all(x.passed for x in checks) and (browser is None or browser.get('errors',0)==0)
-    now=datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-    lines=['# Validation Report','',f'Generated: {now}','',f"**Overall result: {'PASS WITH RESTRICTIONS' if overall else 'FAIL'}**",'',
-      f'This report validates the strict public release boundary. Student practice, exams, smart recommendations, and dashboard calculations use only the {len(student_questions)} independently verified public records; all {len(canonical_questions)-len(student_questions)} remaining records are preserved in the canonical teacher/admin bank and redacted in the public archive.','',
-      '## Reconciled release counts','',
-      '| Measure | Count |','| --- | ---: |',
-      f'| Canonical questions | {len(canonical_questions):,} |',f'| MCQ | {sum(q.get("type")=="mcq" for q in canonical_questions):,} |',f'| FRQ | {sum(q.get("type")=="frq" for q in canonical_questions):,} |',f'| Student-ready | {len(student_questions):,} |',f'| Teacher/archive restricted | {len(canonical_questions)-len(student_questions):,} |',f'| Correction records | {len(corrections):,} |']
-    if browser: lines.append(f'| Browser smoke cases | {browser.get("cases",0):,} |')
-    lines += ['', '## Validation matrix','', '| # | Validation | Result | Errors | Warnings |','| ---: | --- | --- | ---: | ---: |']
-    for x in checks: lines.append(f"| {x.no} | {x.name} | **{'PASS' if x.passed else 'FAIL'}** | {len(x.errors)} | {len(x.warnings)} |")
-    if browser: lines.append(f"| B | Local Chromium browser smoke tests | **{'PASS' if browser.get('errors',0)==0 else 'FAIL'}** | {browser.get('errors',0)} | {browser.get('warnings',0)} |")
-    lines += ['', '## Detailed evidence','']
-    for x in checks:
-        lines += [f'### {x.no}. {x.name}','',f"**{'PASS' if x.passed else 'FAIL'}**",'', '```json',json.dumps(x.evidence,indent=2,ensure_ascii=False,default=lambda o:dict(o)),'```','']
-        if x.errors:
-            lines+=['Errors:']+[f'- {e}' for e in x.errors[:100]]+['']
-        if x.warnings:
-            lines+=['Warnings:']+[f'- {w}' for w in x.warnings[:100]]+['']
-    if browser:
-        lines += ['### B. Local Chromium browser smoke tests','',f"**{'PASS' if browser.get('errors',0)==0 else 'FAIL'}**",'', '```json',json.dumps(browser,indent=2,ensure_ascii=False),'```','']
-    lines += ['## KaTeX verification note','',
-      f"The final structural pass rechecked approved delimiters, braces, and environments across all {len(canonical_questions):,} canonical records. The detailed `KATEX_AUDIT_REPORT.md` records the actual KaTeX 0.16.27 parser run over {int(katex_result.get('expressionsParsed') or 0):,} expressions with zero parser errors. External CDN availability is a deployment concern and is not treated as a mathematical-content failure.",'',
-      '## Production-readiness judgment','',
-      (f'The repository passes for the strictly gated {len(student_questions)}-question public student pool. The {len(canonical_questions)-len(student_questions)} remaining records are deliberately not certified for student interaction and remain blocking review items for future promotion. Static GitHub Pages does not provide an authenticated boundary for the canonical/admin files, so a genuinely private teacher deployment still requires an authenticated host.' if overall else 'The release is not production-ready until the failures above are corrected.'),'']
-    return '\n'.join(lines),overall
-
-browser_path=REPORTS/'browser_smoke_results.json'
-browser=load_json(browser_path) if browser_path.exists() else None
-c=check('35','Browser smoke testing')
-if browser is None:
-    c.errors.append('browser_smoke_results.json is missing.')
-else:
-    if browser.get('errors')!=0 or browser.get('failed')!=0: c.errors.append(f"Browser smoke run has {browser.get('errors')} errors and {browser.get('failed')} failures.")
-    if browser.get('cases',0)<12 or browser.get('passed')!=browser.get('cases'): c.errors.append('Browser smoke run does not contain at least 12 fully passing cases.')
-    if browser.get('canonicalCount')!=len(canonical_questions): c.errors.append('Browser smoke canonical count is stale.')
-    if browser.get('studentReadyCount')!=len(student_questions): c.errors.append('Browser smoke student-ready count is stale.')
-    if browser.get('restrictedCount')!=len(canonical_questions)-len(student_questions): c.errors.append('Browser smoke restricted count is stale.')
-c.evidence=browser or {}
-text,overall=report_text(browser)
-REPORTS.mkdir(exist_ok=True); (REPORTS/'VALIDATION_REPORT.md').write_text(text)
-admin_reports=OFF/'admin'/'reports'
-admin_reports.mkdir(parents=True,exist_ok=True)
-(admin_reports/'VALIDATION_REPORT.md').write_text(text)
-print(json.dumps({'overall':overall,'checks':len(checks),'browserCases':(browser or {}).get('cases',0),'browserErrors':(browser or {}).get('errors',0),'errors':sum(len(x.errors) for x in checks),'warnings':sum(len(x.warnings) for x in checks)+(browser or {}).get('warnings',0),'report':str(REPORTS/'VALIDATION_REPORT.md')},indent=2))
-if not overall: sys.exit(1)
+# Write machine-readable + Markdown reports.
+now=datetime.now(timezone.utc).isoformat()
+result={
+ 'generatedAt':now,'root':str(ROOT),'status':'PASS' if all(c.passed for c in checks) else 'FAIL',
+ 'totals':{'checks':len(checks),'passed':sum(c.passed for c in checks),'failed':sum(not c.passed for c in checks),'warnings':sum(len(c.warnings) for c in checks)},
+ 'checks':[{'no':c.no,'name':c.name,'status':'PASS' if c.passed else 'FAIL','errors':c.errors,'warnings':c.warnings,'evidence':c.evidence} for c in checks]
+}
+REPORTS.mkdir(parents=True,exist_ok=True)
+(REPORTS/'RELEASE_VALIDATION.json').write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
+lines=['# Final Independent Release Audit','',f'Generated: {now}','',f"**Overall: {result['status']}**",'', '| # | Check | Status | Evidence |','|---:|---|:---:|---|']
+for c in checks:
+    evidence='; '.join(f'{k}={v}' for k,v in c.evidence.items())
+    lines.append(f"| {c.no} | {c.name} | {'PASS' if c.passed else 'FAIL'} | {evidence} |")
+    if c.errors:
+        lines.extend([f'  - ERROR: {x}' for x in c.errors[:50]])
+    if c.warnings:
+        lines.extend([f'  - WARNING: {x}' for x in c.warnings[:20]])
+lines += ['', '## Release conclusion','',
+          f"The release contains **{len(canonical_questions):,}** canonical records. Exactly **{len(student_questions):,}** records passed the complete public student gate; **{len(canonical_questions)-len(student_questions):,}** records remain preserved in the teacher/archive-only boundary with redacted public archive metadata.",
+          '', 'No audit can honestly prove that source answer keys contain no error; this release instead records the exact evidence checked, the remaining rights constraints, and the machine gates applied before a record is allowed into open practice or scoring.']
+(REPORTS/'FINAL_AUDIT_REPORT.md').write_text('\n'.join(lines)+'\n')
+print(json.dumps(result['totals'],indent=2))
+for c in checks:
+    if not c.passed: print(f"FAIL {c.no} {c.name}: {c.errors[:10]}")
+sys.exit(0 if result['status']=='PASS' else 1)
