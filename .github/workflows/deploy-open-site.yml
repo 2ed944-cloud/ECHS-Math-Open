@@ -58,6 +58,7 @@ jobs:
         run: |
           rm -rf site/.github site/tools
           test -f site/index.html
+          test -f site/open-build.json
           test -d site/lessons
           test -f site/question-bank/practice.html
 
@@ -81,23 +82,42 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify public account-free landing page
+      - name: Verify live account-free platform
         shell: bash
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           set -euo pipefail
           base="${PAGE_URL%/}"
+          lesson="lessons/ap-calculus/unit-1/1-1-can-change-occur-at-an-instant.html"
           for attempt in $(seq 1 30); do
-            body="$(curl --fail --silent --show-error --header 'Cache-Control: no-cache' "${base}/index.html?attempt=${attempt}" || true)"
-            if printf '%s' "$body" | grep -q "Open learning platform" \
-              && ! printf '%s' "$body" | grep -qiE "Sign in|School Control Center|data-require-account|Supabase"; then
+            index_status="$(curl -L --silent --show-error --header 'Cache-Control: no-cache' -o /tmp/open-index.html -w '%{http_code}' "${base}/index.html?attempt=${attempt}" || true)"
+            meta_status="$(curl -L --silent --show-error --header 'Cache-Control: no-cache' -o /tmp/open-build.json -w '%{http_code}' "${base}/open-build.json?attempt=${attempt}" || true)"
+            practice_status="$(curl -L --silent --show-error --header 'Cache-Control: no-cache' -o /tmp/open-practice.html -w '%{http_code}' "${base}/question-bank/practice.html?attempt=${attempt}" || true)"
+            lesson_status="$(curl -L --silent --show-error --header 'Cache-Control: no-cache' -o /tmp/open-lesson.html -w '%{http_code}' "${base}/${lesson}?attempt=${attempt}" || true)"
+
+            if [[ "$index_status" == "200" && "$meta_status" == "200" && "$practice_status" == "200" && "$lesson_status" == "200" ]] \
+              && grep -q "ECHS Mathematics Open" /tmp/open-index.html \
+              && grep -q '"edition": "open"' /tmp/open-build.json \
+              && grep -q '"accounts": false' /tmp/open-build.json \
+              && grep -q '"roles": false' /tmp/open-build.json \
+              && ! grep -qiE "Sign in|School Control Center|data-require-account|Supabase" /tmp/open-index.html \
+              && ! grep -qiE "data-require-account|lesson-access-guard|institution-client|Supabase" /tmp/open-practice.html \
+              && ! grep -qiE "data-echs-lesson-guard|lesson-access-guard|institution-client|Supabase" /tmp/open-lesson.html; then
               echo "ECHS Mathematics Open live verification: PASS"
               exit 0
             fi
+
+            echo "Attempt ${attempt}: index=${index_status}, metadata=${meta_status}, practice=${practice_status}, lesson=${lesson_status}"
             sleep 10
           done
-          echo "The account-free landing page was not verified after deployment." >&2
+
+          echo "Live account-free platform verification failed." >&2
+          echo "Index preview:" >&2
+          head -c 600 /tmp/open-index.html >&2 || true
+          echo >&2
+          echo "Metadata preview:" >&2
+          cat /tmp/open-build.json >&2 || true
           exit 1
 
   report:
