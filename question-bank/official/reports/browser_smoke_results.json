@@ -1,0 +1,115 @@
+{
+  "generatedAt": "2026-07-24T21:34:03.075Z",
+  "canonicalCount": 1217,
+  "studentReadyCount": 52,
+  "restrictedCount": 1165,
+  "cases": 12,
+  "passed": 12,
+  "failed": 0,
+  "errors": 0,
+  "warnings": 0,
+  "pageErrors": [],
+  "results": [
+    {
+      "name": "Student home and navigation",
+      "status": "PASS",
+      "detail": {
+        "stats": "52 | Student-ready questions | 42 | Verified MCQ | 10 | Verified FRQ | 1,165 | Restricted archive records",
+        "labels": [
+          "Home",
+          "Official Archive",
+          "Tutor Practice",
+          "Exam Simulator",
+          "Dashboard",
+          "ECHS Portal"
+        ]
+      }
+    },
+    {
+      "name": "Archive count reconciliation",
+      "status": "PASS",
+      "detail": {
+        "stats": "1,217 | Canonical archive records | 52 | Student Ready | 1,165 | Teacher/archive only | 328 | Incomplete source"
+      }
+    },
+    {
+      "name": "Ready archive record opens verified content",
+      "status": "PASS",
+      "detail": {
+        "id": "ECHS-APCALC-ORIGINAL-CALC-U1-001",
+        "detailCharacters": 438
+      }
+    },
+    {
+      "name": "Restricted archive record remains redacted",
+      "status": "PASS",
+      "detail": {
+        "id": "APCALC-AB-FRQ-1969-01",
+        "redacted": true
+      }
+    },
+    {
+      "name": "Direct ready-question practice",
+      "status": "PASS",
+      "detail": {
+        "id": "ECHS-APCALC-ORIGINAL-CALC-U1-001",
+        "choices": 5,
+        "archiveHref": "archive.html?id=ECHS-APCALC-ORIGINAL-CALC-U1-001"
+      }
+    },
+    {
+      "name": "Exact lesson filtering",
+      "status": "PASS",
+      "detail": {
+        "lesson": "APCALC-1.6",
+        "loadedId": "ECHS-APCALC-ORIGINAL-CALC-U1-001",
+        "eligibleQuestions": 1
+      }
+    },
+    {
+      "name": "Exact lesson zero-result honesty",
+      "status": "PASS",
+      "detail": {
+        "noFallback": true
+      }
+    },
+    {
+      "name": "Student-ready-only exam build",
+      "status": "PASS",
+      "detail": {
+        "records": 52,
+        "allReady": true
+      }
+    },
+    {
+      "name": "Dashboard valid-attempt boundary",
+      "status": "PASS",
+      "detail": {
+        "validIds": 52,
+        "allReady": true,
+        "lessonPanel": true
+      }
+    },
+    {
+      "name": "Admin Teacher Studio full-record inspection",
+      "status": "PASS",
+      "detail": {
+        "canonicalRecords": 1217
+      }
+    },
+    {
+      "name": "Admin import promotion boundary",
+      "status": "PASS",
+      "detail": {
+        "boundaryVisible": true
+      }
+    },
+    {
+      "name": "Stable teacher URL redirect",
+      "status": "PASS",
+      "detail": {
+        "target": "admin/teacher.html"
+      }
+    }
+  ]
+}

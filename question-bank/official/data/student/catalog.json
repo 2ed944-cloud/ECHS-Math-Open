@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "5.0.0",
+  "mode": "student-ready-public-gated",
+  "generatedAt": "2026-07-24T21:33:52+00:00",
+  "questionCount": 52,
+  "archiveQuestionCount": 1217,
+  "stats": {
+    "questions": 52,
+    "mcq": 42,
+    "frq": 10,
+    "withMedia": 0,
+    "withHints": 0,
+    "answerVerified": 52,
+    "needsReview": 0,
+    "studentEligible": 52,
+    "studentAccessible": 52,
+    "studentReady": 52,
+    "teacherArchiveOnly": 1165,
+    "fullyDigitized": 52,
+    "indexedOnly": 0
+  },
+  "courses": {
+    "AP Calculus AB": 22,
+    "AP Precalculus": 19,
+    "Grade 9 Pre-Precalculus": 11
+  },
+  "types": {
+    "mcq": 42,
+    "frq": 10
+  },
+  "calculator": {
+    "no-calculator": 48,
+    "calculator-required": 4
+  },
+  "units": {
+    "1": 12,
+    "2": 12,
+    "3": 8,
+    "4": 6,
+    "5": 5,
+    "6": 4,
+    "7": 2,
+    "8": 3
+  },
+  "readiness": {
+    "student-ready": 52
+  },
+  "officialStatus": {
+    "echs-original": 52
+  },
+  "years": {},
+  "collections": [
+    {
+      "id": "ECHS original practice",
+      "label": "ECHS original practice",
+      "count": 52,
+      "studentReadyCount": 52,
+      "officialStatus": "echs-original",
+      "accessLevel": "public"
+    }
+  ],
+  "restrictedSummary": {
+    "canonicalQuestions": 1217,
+    "studentReady": 52,
+    "teacherArchiveOnly": 1165,
+    "message": "Only independently audited, exactly mapped, public-release-approved records are used by the GitHub Pages student runtime."
+  },
+  "deployment": {
+    "studentDataRoot": "data/student",
+    "adminDataRoot": "data",
+    "staticAuthenticationAvailable": false,
+    "adminRoute": "admin/"
+  }
+}

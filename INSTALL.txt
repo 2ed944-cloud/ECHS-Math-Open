@@ -1,0 +1,24 @@
+ECHS Mathematics — AP Precalculus Units 1–2 Update
+
+UPLOAD / MERGE THE CONTENTS OF THIS FOLDER INTO THE ROOT OF:
+2ed944-cloud/ECHS-Math
+
+Replace when prompted:
+  index.html
+  data/ap-precalculus-update.js
+
+Add the complete folder:
+  lessons/ap-precalculus/unit-2/
+
+Do not delete:
+  lessons/ap-precalculus/unit-1/
+  data/courses.js
+  data/ap-calculus-update.js
+  any AP Precalculus Unit 3 or Unit 4 files
+
+Expected portal result:
+  G10–G11 AP Precalculus
+  4 units · 72 lessons · 29 open
+
+The update script replaces only Unit 1 and Unit 2 inside the existing AP Precalculus course and preserves Units 3–4.
+After GitHub Pages deploys, use Ctrl+F5 once to bypass the browser cache.
