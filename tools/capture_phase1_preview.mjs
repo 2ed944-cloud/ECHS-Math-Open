@@ -3,26 +3,25 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const baseURL=process.env.ECHS_PREVIEW_URL||'http://127.0.0.1:4173';
-const outputDir=process.env.ECHS_PREVIEW_OUTPUT||'artifacts/phase2-visual';
+const outputDir=process.env.ECHS_PREVIEW_OUTPUT||'artifacts/open-visual';
 await mkdir(outputDir,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const routes=[
   {key:'home',path:'/index.html',ready:'#courses'},
-  {key:'learning-home',path:'/question-bank/index.html',ready:'#homePlan'},
+  {key:'practice-hub',path:'/question-bank/index.html',ready:'#homePlan'},
   {key:'adaptive-practice',path:'/question-bank/practice.html?mode=adaptive',ready:'#start',delay:6500},
   {key:'test-generator',path:'/question-bank/exam.html',ready:'#start',delay:6500},
-  {key:'student-dashboard',path:'/question-bank/dashboard.html',ready:'#dailyPlan'},
-  {key:'mistake-bank',path:'/question-bank/mistakes.html',ready:'#reviewList'},
-  {key:'teacher-dashboard',path:'/question-bank/teacher.html',ready:'#classList'},
-  {key:'parent-report',path:'/question-bank/parent.html',ready:'#familyPlan'},
+  {key:'progress',path:'/question-bank/dashboard.html',ready:'#dailyPlan'},
+  {key:'review-centre',path:'/question-bank/mistakes.html',ready:'#reviewList'},
   {key:'privacy',path:'/privacy.html',ready:'main'},
-  {key:'accessibility',path:'/accessibility.html',ready:'main'}
+  {key:'accessibility',path:'/accessibility.html',ready:'main'},
+  {key:'sources-rights',path:'/sources-and-rights.html',ready:'main'}
 ];
 const devices=[
   {key:'desktop',viewport:{width:1440,height:1000},isMobile:false},
   {key:'mobile',viewport:{width:390,height:844},isMobile:true}
 ];
-const report={generatedAt:new Date().toISOString(),baseURL,pages:[],errors:[]};
+const report={generatedAt:new Date().toISOString(),edition:'open-account-free',baseURL,pages:[],errors:[]};
 for(const device of devices){
   const context=await browser.newContext({viewport:device.viewport,isMobile:device.isMobile,deviceScaleFactor:1,reducedMotion:'reduce'});
   for(const route of routes){
@@ -38,9 +37,11 @@ for(const device of devices){
       entry.title=await page.title();entry.h1=await page.locator('h1').first().textContent().catch(()=>null);
       entry.bodyWidth=await page.evaluate(()=>document.body.scrollWidth);entry.viewportWidth=device.viewport.width;entry.horizontalOverflow=entry.bodyWidth>device.viewport.width+2;
       entry.theme=await page.evaluate(()=>document.documentElement.dataset.theme||'light');
+      entry.accountLinks=await page.locator('a[href*="login.html"],a[href*="teacher.html"],a[href*="parent.html"],a[href*="admin.html"],a[href*="student.html"]').count();
       const screenshot=path.join(outputDir,`${route.key}-${device.key}.png`);await page.screenshot({path:screenshot,fullPage:true});entry.screenshot=screenshot;
       if(entry.status&&entry.status>=400)report.errors.push(`${route.key}/${device.key}: HTTP ${entry.status}`);
       if(entry.horizontalOverflow)report.errors.push(`${route.key}/${device.key}: horizontal overflow ${entry.bodyWidth}px > ${device.viewport.width}px`);
+      if(entry.accountLinks)report.errors.push(`${route.key}/${device.key}: ${entry.accountLinks} account or role links remain`);
       if(pageErrors.length)report.errors.push(`${route.key}/${device.key}: ${pageErrors.join(' | ')}`);
       const relevant=consoleErrors.filter(message=>!/favicon|Failed to load resource.*fonts\.gstatic|net::ERR_BLOCKED_BY_CLIENT/i.test(message));
       if(relevant.length)report.errors.push(`${route.key}/${device.key}: console ${relevant.join(' | ')}`);
