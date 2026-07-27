@@ -3,9 +3,9 @@
   "account_free": true,
   "build": "success",
   "deploy": "failure",
-  "run_id": 30272265104,
+  "run_id": 30271853949,
   "source_repository": "2ed944-cloud/ECHS-Math",
   "source_ref": "main plus reviewed open exporter",
   "site_url": "https://2ed944-cloud.github.io/ECHS-Math-Open/",
-  "recorded_at": "2026-07-27T13:52:40.141Z"
+  "recorded_at": "2026-07-27T15:26:29.164Z"
 }
