@@ -1,0 +1,454 @@
+{
+  "schemaVersion": "4.0.0",
+  "generatedAt": "2026-07-27",
+  "description": "Course-aligned virtual banks. Student UI uses numbered course labels; source provenance remains internal.",
+  "numberedSources": {
+    "PCALRT5S": {
+      "aliases": {
+        "ap-precalculus": "APPC1"
+      },
+      "titles": {
+        "ap-precalculus": "AP Precalculus Bank 1"
+      },
+      "question_count": 4528,
+      "existing_catalog": true
+    },
+    "CAF5S": {
+      "aliases": {
+        "ap-precalculus": "APPC2"
+      },
+      "titles": {
+        "ap-precalculus": "AP Precalculus Bank 2"
+      },
+      "question_count": 3101,
+      "existing_catalog": true
+    }
+  },
+  "alignedSources": [
+    {
+      "source_bank_code": "CAEGU9",
+      "package": "assets/aligned-banks/caegu9.zip",
+      "question_count": 3604,
+      "entries": [
+        "chapter_00/questions.json",
+        "chapter_01/questions.json",
+        "chapter_02/questions.json",
+        "chapter_03/questions.json",
+        "chapter_04/questions.json",
+        "chapter_05/questions.json",
+        "chapter_06/questions.json",
+        "chapter_07/questions.json",
+        "chapter_08/questions.json",
+        "chapter_09/questions.json",
+        "chapter_10/questions.json"
+      ],
+      "entry_counts": {
+        "chapter_00/questions.json": 543,
+        "chapter_01/questions.json": 417,
+        "chapter_02/questions.json": 264,
+        "chapter_03/questions.json": 327,
+        "chapter_04/questions.json": 227,
+        "chapter_05/questions.json": 396,
+        "chapter_06/questions.json": 495,
+        "chapter_07/questions.json": 140,
+        "chapter_08/questions.json": 435,
+        "chapter_09/questions.json": 244,
+        "chapter_10/questions.json": 116
+      },
+      "courses": {
+        "ap-precalculus": {
+          "bank_code": "APPC4",
+          "title": "AP Precalculus Bank 4",
+          "mapped_question_count": 3265,
+          "unit_counts": {
+            "1": 2097,
+            "3": 6,
+            "2": 771,
+            "4": 391
+          },
+          "unit_entries": {
+            "1": [
+              "chapter_00/questions.json",
+              "chapter_01/questions.json",
+              "chapter_02/questions.json",
+              "chapter_03/questions.json",
+              "chapter_04/questions.json",
+              "chapter_05/questions.json",
+              "chapter_08/questions.json"
+            ],
+            "3": [
+              "chapter_00/questions.json"
+            ],
+            "2": [
+              "chapter_06/questions.json",
+              "chapter_08/questions.json",
+              "chapter_09/questions.json"
+            ],
+            "4": [
+              "chapter_07/questions.json",
+              "chapter_08/questions.json"
+            ]
+          }
+        },
+        "ib-math-ai": {
+          "bank_code": "IBMATH3",
+          "title": "IB Mathematics Bank 3",
+          "mapped_question_count": 3542,
+          "unit_counts": {
+            "1": 335,
+            "2": 2786,
+            "3": 223,
+            "4": 198
+          },
+          "unit_entries": {
+            "1": [
+              "chapter_00/questions.json",
+              "chapter_09/questions.json"
+            ],
+            "2": [
+              "chapter_00/questions.json",
+              "chapter_01/questions.json",
+              "chapter_02/questions.json",
+              "chapter_03/questions.json",
+              "chapter_04/questions.json",
+              "chapter_05/questions.json",
+              "chapter_06/questions.json",
+              "chapter_08/questions.json",
+              "chapter_09/questions.json"
+            ],
+            "3": [
+              "chapter_00/questions.json",
+              "chapter_02/questions.json",
+              "chapter_07/questions.json"
+            ],
+            "4": [
+              "chapter_04/questions.json",
+              "chapter_05/questions.json",
+              "chapter_06/questions.json",
+              "chapter_10/questions.json"
+            ]
+          }
+        }
+      },
+      "source_archive": "source-imports/aligned-banks/caegu9-blackboard.zip"
+    },
+    {
+      "source_bank_code": "ACS10L",
+      "package": "assets/aligned-banks/acs10l.zip",
+      "question_count": 4285,
+      "entries": [
+        "chapter_00/questions.json",
+        "chapter_01/questions.json",
+        "chapter_02/questions.json",
+        "chapter_03/questions.json",
+        "chapter_04/questions.json",
+        "chapter_05/questions.json",
+        "chapter_06/questions.json",
+        "chapter_07/questions.json",
+        "chapter_08/questions.json",
+        "chapter_09/questions.json",
+        "chapter_10/questions.json",
+        "chapter_11/questions.json",
+        "chapter_12/questions.json",
+        "chapter_13/questions.json",
+        "chapter_14/questions.json"
+      ],
+      "entry_counts": {
+        "chapter_00/questions.json": 408,
+        "chapter_01/questions.json": 354,
+        "chapter_02/questions.json": 361,
+        "chapter_03/questions.json": 177,
+        "chapter_04/questions.json": 332,
+        "chapter_05/questions.json": 192,
+        "chapter_06/questions.json": 253,
+        "chapter_07/questions.json": 384,
+        "chapter_08/questions.json": 246,
+        "chapter_09/questions.json": 311,
+        "chapter_10/questions.json": 315,
+        "chapter_11/questions.json": 242,
+        "chapter_12/questions.json": 219,
+        "chapter_13/questions.json": 336,
+        "chapter_14/questions.json": 155
+      },
+      "courses": {
+        "ib-math-ai": {
+          "bank_code": "IBMATH1",
+          "title": "IB Mathematics Bank 1",
+          "mapped_question_count": 4093,
+          "unit_counts": {
+            "1": 630,
+            "2": 2958,
+            "3": 379,
+            "4": 126
+          },
+          "unit_entries": {
+            "1": [
+              "chapter_00/questions.json",
+              "chapter_05/questions.json",
+              "chapter_13/questions.json",
+              "chapter_14/questions.json"
+            ],
+            "2": [
+              "chapter_00/questions.json",
+              "chapter_01/questions.json",
+              "chapter_02/questions.json",
+              "chapter_03/questions.json",
+              "chapter_04/questions.json",
+              "chapter_05/questions.json",
+              "chapter_06/questions.json",
+              "chapter_07/questions.json",
+              "chapter_08/questions.json",
+              "chapter_09/questions.json",
+              "chapter_10/questions.json",
+              "chapter_11/questions.json",
+              "chapter_14/questions.json"
+            ],
+            "3": [
+              "chapter_01/questions.json",
+              "chapter_02/questions.json",
+              "chapter_07/questions.json",
+              "chapter_09/questions.json",
+              "chapter_12/questions.json"
+            ],
+            "4": [
+              "chapter_09/questions.json",
+              "chapter_11/questions.json",
+              "chapter_12/questions.json",
+              "chapter_13/questions.json"
+            ]
+          }
+        }
+      },
+      "source_archive": "source-imports/aligned-banks/acs10l-blackboard.zip"
+    },
+    {
+      "source_bank_code": "CA9Z",
+      "package": "assets/aligned-banks/ca9z.zip",
+      "question_count": 2837,
+      "entries": [
+        "chapter_00/questions.json",
+        "chapter_01/questions.json",
+        "chapter_02/questions.json",
+        "chapter_03/questions.json",
+        "chapter_04/questions.json",
+        "chapter_05/questions.json",
+        "chapter_06/questions.json",
+        "chapter_07/questions.json",
+        "chapter_08/questions.json"
+      ],
+      "entry_counts": {
+        "chapter_00/questions.json": 408,
+        "chapter_01/questions.json": 418,
+        "chapter_02/questions.json": 353,
+        "chapter_03/questions.json": 531,
+        "chapter_04/questions.json": 265,
+        "chapter_05/questions.json": 285,
+        "chapter_06/questions.json": 151,
+        "chapter_07/questions.json": 127,
+        "chapter_08/questions.json": 299
+      },
+      "courses": {
+        "ap-precalculus": {
+          "bank_code": "APPC5",
+          "title": "AP Precalculus Bank 5",
+          "mapped_question_count": 2713,
+          "unit_counts": {
+            "1": 1676,
+            "2": 617,
+            "3": 8,
+            "4": 412
+          },
+          "unit_entries": {
+            "1": [
+              "chapter_00/questions.json",
+              "chapter_01/questions.json",
+              "chapter_02/questions.json",
+              "chapter_03/questions.json",
+              "chapter_05/questions.json"
+            ],
+            "2": [
+              "chapter_00/questions.json",
+              "chapter_02/questions.json",
+              "chapter_04/questions.json",
+              "chapter_08/questions.json"
+            ],
+            "3": [
+              "chapter_01/questions.json"
+            ],
+            "4": [
+              "chapter_03/questions.json",
+              "chapter_05/questions.json",
+              "chapter_06/questions.json",
+              "chapter_07/questions.json"
+            ]
+          }
+        },
+        "ib-math-ai": {
+          "bank_code": "IBMATH4",
+          "title": "IB Mathematics Bank 4",
+          "mapped_question_count": 2837,
+          "unit_counts": {
+            "1": 205,
+            "2": 2015,
+            "3": 242,
+            "4": 375
+          },
+          "unit_entries": {
+            "1": [
+              "chapter_00/questions.json",
+              "chapter_06/questions.json"
+            ],
+            "2": [
+              "chapter_00/questions.json",
+              "chapter_01/questions.json",
+              "chapter_02/questions.json",
+              "chapter_03/questions.json",
+              "chapter_04/questions.json",
+              "chapter_05/questions.json",
+              "chapter_06/questions.json"
+            ],
+            "3": [
+              "chapter_01/questions.json",
+              "chapter_02/questions.json",
+              "chapter_03/questions.json",
+              "chapter_07/questions.json"
+            ],
+            "4": [
+              "chapter_02/questions.json",
+              "chapter_04/questions.json",
+              "chapter_08/questions.json"
+            ]
+          }
+        }
+      },
+      "source_archive": "source-imports/aligned-banks/ca9z-blackboard.zip"
+    },
+    {
+      "source_bank_code": "ATEGU9",
+      "package": "assets/aligned-banks/ategu9.zip",
+      "question_count": 4945,
+      "entries": [
+        "chapter_00/questions.json",
+        "chapter_01/questions.json",
+        "chapter_02/questions.json",
+        "chapter_03/questions.json",
+        "chapter_04/questions.json",
+        "chapter_05/questions.json",
+        "chapter_06/questions.json",
+        "chapter_07/questions.json",
+        "chapter_08/questions.json",
+        "chapter_09/questions.json",
+        "chapter_10/questions.json",
+        "chapter_11/questions.json",
+        "chapter_12/questions.json",
+        "chapter_13/questions.json",
+        "chapter_14/questions.json"
+      ],
+      "entry_counts": {
+        "chapter_00/questions.json": 543,
+        "chapter_01/questions.json": 417,
+        "chapter_02/questions.json": 264,
+        "chapter_03/questions.json": 327,
+        "chapter_04/questions.json": 227,
+        "chapter_05/questions.json": 396,
+        "chapter_06/questions.json": 495,
+        "chapter_07/questions.json": 377,
+        "chapter_08/questions.json": 532,
+        "chapter_09/questions.json": 119,
+        "chapter_10/questions.json": 226,
+        "chapter_11/questions.json": 227,
+        "chapter_12/questions.json": 435,
+        "chapter_13/questions.json": 244,
+        "chapter_14/questions.json": 116
+      },
+      "courses": {
+        "ap-precalculus": {
+          "bank_code": "APPC3",
+          "title": "AP Precalculus Bank 3",
+          "mapped_question_count": 4606,
+          "unit_counts": {
+            "1": 2097,
+            "3": 1053,
+            "2": 771,
+            "4": 685
+          },
+          "unit_entries": {
+            "1": [
+              "chapter_00/questions.json",
+              "chapter_01/questions.json",
+              "chapter_02/questions.json",
+              "chapter_03/questions.json",
+              "chapter_04/questions.json",
+              "chapter_05/questions.json",
+              "chapter_12/questions.json"
+            ],
+            "3": [
+              "chapter_00/questions.json",
+              "chapter_07/questions.json",
+              "chapter_08/questions.json",
+              "chapter_09/questions.json",
+              "chapter_11/questions.json"
+            ],
+            "2": [
+              "chapter_06/questions.json",
+              "chapter_12/questions.json",
+              "chapter_13/questions.json"
+            ],
+            "4": [
+              "chapter_10/questions.json",
+              "chapter_11/questions.json",
+              "chapter_12/questions.json"
+            ]
+          }
+        },
+        "ib-math-ai": {
+          "bank_code": "IBMATH2",
+          "title": "IB Mathematics Bank 2",
+          "mapped_question_count": 4883,
+          "unit_counts": {
+            "1": 335,
+            "2": 2823,
+            "3": 1518,
+            "4": 207
+          },
+          "unit_entries": {
+            "1": [
+              "chapter_00/questions.json",
+              "chapter_13/questions.json"
+            ],
+            "2": [
+              "chapter_00/questions.json",
+              "chapter_01/questions.json",
+              "chapter_02/questions.json",
+              "chapter_03/questions.json",
+              "chapter_04/questions.json",
+              "chapter_05/questions.json",
+              "chapter_06/questions.json",
+              "chapter_11/questions.json",
+              "chapter_12/questions.json",
+              "chapter_13/questions.json"
+            ],
+            "3": [
+              "chapter_00/questions.json",
+              "chapter_02/questions.json",
+              "chapter_07/questions.json",
+              "chapter_08/questions.json",
+              "chapter_09/questions.json",
+              "chapter_10/questions.json",
+              "chapter_11/questions.json"
+            ],
+            "4": [
+              "chapter_04/questions.json",
+              "chapter_05/questions.json",
+              "chapter_06/questions.json",
+              "chapter_07/questions.json",
+              "chapter_14/questions.json"
+            ]
+          }
+        }
+      },
+      "source_archive": "source-imports/aligned-banks/ategu9-blackboard.zip",
+      "companion_source": "source-imports/aligned-banks/ategu9-source-bok.zip"
+    }
+  ]
+}

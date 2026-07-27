@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /.echs-backups/
+Disallow: /source-imports/
 Disallow: /question-bank/review.html
 Disallow: /question-bank/practice-sources/
 Disallow: /question-bank/dashboard.html
