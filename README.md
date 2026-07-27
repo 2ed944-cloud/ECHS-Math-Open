@@ -14,4 +14,4 @@ Open, account-free edition of the ECHS Mathematics learning platform.
 
 GitHub Actions builds the open edition from the canonical `2ed944-cloud/ECHS-Math` source and deploys the account-free artifact to GitHub Pages.
 
-The canonical institutional platform remains separate and unchanged.
+The repository includes an initialized `gh-pages` branch for first-time Pages setup. The canonical institutional platform remains separate and unchanged.
