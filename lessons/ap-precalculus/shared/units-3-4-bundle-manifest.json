@@ -1,10 +1,10 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "2.1.0",
   "format": "brotli+base32768-15bit",
-  "compressedSha256": "8b60f0d5021a8936dc995a18a1decf456ac0791f6d97ee82ade84c20ac24ef00",
-  "compressedBytes": 699356,
-  "uncompressedBytes": 9174966,
-  "encodedCharacters": 372990,
+  "compressedSha256": "fd839303cfcc21481d34ec9b6c5631be3f9226ca0cb99c0f52ac14bb33954aba",
+  "compressedBytes": 371252,
+  "uncompressedBytes": 8497181,
+  "encodedCharacters": 198002,
   "chunks": [
     "units-3-4-bundle-01.txt",
     "units-3-4-bundle-02.txt",
@@ -20,19 +20,7 @@
     "units-3-4-bundle-12.txt",
     "units-3-4-bundle-13.txt",
     "units-3-4-bundle-14.txt",
-    "units-3-4-bundle-15.txt",
-    "units-3-4-bundle-16.txt",
-    "units-3-4-bundle-17.txt",
-    "units-3-4-bundle-18.txt",
-    "units-3-4-bundle-19.txt",
-    "units-3-4-bundle-20.txt",
-    "units-3-4-bundle-21.txt",
-    "units-3-4-bundle-22.txt",
-    "units-3-4-bundle-23.txt",
-    "units-3-4-bundle-24.txt",
-    "units-3-4-bundle-25.txt",
-    "units-3-4-bundle-26.txt",
-    "units-3-4-bundle-27.txt"
+    "units-3-4-bundle-15.txt"
   ],
   "topics": [
     "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15",
