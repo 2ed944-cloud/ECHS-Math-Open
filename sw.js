@@ -1,4 +1,4 @@
-const VERSION = "echs-platform-phase2-v1";
+const VERSION = "echs-open-nav-v1";
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const SHELL = [
@@ -6,10 +6,11 @@ const SHELL = [
   "./css/portal.css","./css/practice-integration.css","./css/official-ap-integration.css","./css/platform-foundation.css",
   "./data/courses.js","./data/ap-calculus-update.js","./data/ap-precalculus-update.js",
   "./js/portal.js","./js/practice-integration.js","./js/official-ap-integration.js","./js/platform-foundation.js","./js/lesson-learning-bridge.js",
-  "./question-bank/index.html","./question-bank/practice.html","./question-bank/exam.html","./question-bank/dashboard.html","./question-bank/mistakes.html","./question-bank/teacher.html","./question-bank/parent.html",
+  "./question-bank/index.html","./question-bank/practice.html","./question-bank/exam.html","./question-bank/dashboard.html","./question-bank/mistakes.html",
   "./question-bank/css/bank.css","./question-bank/css/practice-studio.css","./question-bank/css/learning-system.css",
-  "./question-bank/js/learning-system.js","./question-bank/js/sync-adapter.js","./question-bank/js/bank.js","./question-bank/js/learning-home.js","./question-bank/js/practice.js","./question-bank/js/exam.js","./question-bank/js/dashboard.js","./question-bank/js/mistakes.js","./question-bank/js/teacher.js","./question-bank/js/parent.js",
+  "./question-bank/js/learning-system.js","./question-bank/js/sync-adapter.js","./question-bank/js/bank.js","./question-bank/js/learning-home.js","./question-bank/js/practice.js","./question-bank/js/exam.js","./question-bank/js/dashboard.js","./question-bank/js/mistakes.js",
   "./question-bank/data/catalog.json","./question-bank/data/blackboard-addon.json",
+  "./question-bank/official/index.html",
   "./assets/echs_logo.png","./assets/icon-192.png","./assets/icon-512.png"
 ];
 
