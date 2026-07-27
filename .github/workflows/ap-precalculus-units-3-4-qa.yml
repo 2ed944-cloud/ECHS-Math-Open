@@ -1,0 +1,36 @@
+name: AP Precalculus Units 3–4 QA
+
+on:
+  pull_request:
+    paths:
+      - "lessons/ap-precalculus/lesson.html"
+      - "lessons/ap-precalculus/shared/**"
+      - "data/ap-precalculus-units-3-4.js"
+      - "index.html"
+      - "sw.js"
+      - "tools/validate_ap_precalculus_units_3_4.py"
+      - ".github/workflows/ap-precalculus-units-3-4-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-units:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Brotli validator
+        run: python -m pip install --disable-pip-version-check brotli==1.1.0
+      - name: Validate Unit 3 and Unit 4 packages
+        run: python tools/validate_ap_precalculus_units_3_4.py
