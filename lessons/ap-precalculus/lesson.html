@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#78183f">
+  <title>AP Precalculus Lesson | ECHS Mathematics Open</title>
+</head>
+<body>
+  <main style="font-family:Inter,Arial,sans-serif;width:min(720px,calc(100% - 2rem));margin:4rem auto;padding:2rem">
+    <h1>Loading AP Precalculus lesson…</h1>
+    <p>The complete interactive lesson is being prepared.</p>
+  </main>
+  <script>
+  (()=>{
+    const params=new URLSearchParams(location.search);
+    const topic=params.get("topic")||"";
+    const unit=topic.split(".")[0];
+    if(!/^[34]\.\d{1,2}$/.test(topic)){location.replace("../../../index.html#courses");return;}
+    const script=document.createElement("script");
+    script.src="shared/ap-precalculus-unit-loader.js";
+    script.dataset.unit=unit;
+    script.dataset.topic=topic;
+    document.body.append(script);
+  })();
+  </script>
+</body>
+</html>
