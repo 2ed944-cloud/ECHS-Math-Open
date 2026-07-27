@@ -1,0 +1,101 @@
+name: Deploy ECHS Mathematics Open
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-open
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out latest canonical platform
+        uses: actions/checkout@v4
+        with:
+          repository: 2ed944-cloud/ECHS-Math
+          ref: main
+          fetch-depth: 0
+          path: source
+
+      - name: Overlay reviewed open-edition exporter
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source
+          git fetch origin agent/open-platform-export:refs/remotes/origin/agent/open-platform-export
+          git checkout origin/agent/open-platform-export -- \
+            tools/build_open_site.py \
+            tools/test_open_site_contract.py \
+            variants/open \
+            js/portal-open.js
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build account-free site
+        run: python source/tools/build_open_site.py source site
+
+      - name: Validate absence of accounts and school services
+        run: python source/tools/test_open_site_contract.py site
+
+      - name: Remove build-only files
+        shell: bash
+        run: |
+          rm -rf site/.github site/tools
+          test -f site/index.html
+          test -d site/lessons
+          test -f site/question-bank/practice.html
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy open site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify public account-free landing page
+        shell: bash
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${PAGE_URL%/}"
+          for attempt in $(seq 1 30); do
+            body="$(curl --fail --silent --show-error --header 'Cache-Control: no-cache' "${base}/index.html?attempt=${attempt}" || true)"
+            if printf '%s' "$body" | grep -q "Open learning platform" \
+              && ! printf '%s' "$body" | grep -qiE "Sign in|School Control Center|data-require-account|Supabase"; then
+              echo "ECHS Mathematics Open live verification: PASS"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "The account-free landing page was not verified after deployment." >&2
+          exit 1
